@@ -1,0 +1,6 @@
+Redis-benchmark      压力测试工具
+Redis-check-aof      检查redis持久化命令文件的完整性
+Redis-check-dump     检查redis持久化数据文件的完整性
+Redis-cli            redis在linux上的客户端
+Redis-sentinel       redis-sentinel是集群管理工具,主要负责主从切换。
+Redis-server         Redis服务器的daemon启动程序
