@@ -1,0 +1,69 @@
+<?php
+/**
+Redis 在线管理工具（phpRedisAdmin）介绍
+example:
+You can find an example database at http://dubbelboer.com/phpRedisAdmin/
+
+server：同时可以管理若干个 server；每个 server 是 redis 的一个实例；               相当于MySQL中的数据库         
+database：每个 server 默认划分为 16 个库，用于 key 空间的隔离；                    0-15个数据库编号，相当于mysql中的数据表
+第 1 个filter是过滤 server 的（type here to server filter），默认 * 星号即可；     相当于SQL语句的查找数据库    
+第 2 个filter是过滤 key 的（type here to filter），即 KEYS 命令；                 相当于SQL语句中的-----where条件----模糊查询
+蓝色 i 图标可以查看 INFO 命令结果；                                               相当于本地服务器之后的php文件：<?php echo info();?>输出   
+
+作者：michael_jia
+链接：http://www.jianshu.com/p/0792472b4a1d
+*/
+
+
+
+
+安装
+
+下载版本包
+从 github 下载 [phpRedisAdmin]，最新版 v1.6.0。依赖 predis 1.0.3 及以上；
+从 github 下载 predis，最新 v1.1.1。
+或者从 git 库直接 clone
+
+git clone https://github.com/ErikDubbelboer/phpRedisAdmin.git
+cd phpRedisAdmin
+git clone https://github.com/nrk/predis.git vendor
+
+或者使用 composer。
+
+配置
+
+Predis 代码直接放在 phpRedisAdmin 的 vendor 子目录下；
+
+如果 predis 不存在，报 500 错误。
+Predis：Flexible and feature-complete Redis client for PHP and HHVM；
+
+配置 config.inc.php
+
+You may also want to copy includes/config.simple.inc.php to includes/config.inc.php and edit it with your specific redis configuration.
+如果你要修改配置，则复制 config.simple.inc.php 到 config.inc.php 进行修改即可；通常不必修改；
+访问 redis 数据通常要进行认证，要确保数据安全；
+login 变量就是负责认证的；
+直接使用 nginx HTTP Basic Authentication 进行认证即可（不必配置修改 login 变量）；
+
+redisadmin.conf 配置片段 の nginx
+
+    auth_basic "redisadmin authentication required";
+    auth_basic_user_file htpasswd/redisadmin.example.com;
+
+    index index.php;
+    location ~ ".*\.php$" {
+        include fastcgi_params;
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+Troubleshooting（性能问题）
+
+初始页面会加载全部数据；
+当 keys 上万时，筛选是比较耗时的；
+内存分配耗尽问题；
+error.log 如下：
+2016/10/25 12:23:36 [error] 19098#0: *3394834 FastCGI sent in stderr: "PHP message: PHP Fatal error: Allowed memory size of 134217728 bytes exhausted (tried to allocate 72 bytes) in /home/app/example/phpRedisAdmin/index.php on line 53" while reading response header from upstream, client: 1.202.201.13, server: redisadmin.example.com, request: "GET / HTTP/1.1", upstream: "fastcgi://127.0.0.1:9000", host: "redisadmin.example.com"
+注：memory_limit 128M 内存限制问题，修改 /usr/local/php/lib/php.ini，或者 php 脚本加入 ini_set('memory_limit', '256M'); 详见 ini_set 函数；
+sasanrose/phpredmin
+
+Sasan Rose 主导开发的这个 Web 界面，颇具特色，支持 console 命令，有统计图形，操控性看起来很强大；
